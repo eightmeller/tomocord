@@ -2,268 +2,170 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tomocord — Liquid Glass</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Tomocord</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
   <style>
     :root {
-      --glass-bg: rgba(28, 30, 38, 0.48);
-      --glass-sidebar: rgba(20, 22, 28, 0.56);
-      --glass-elevated: rgba(42, 45, 58, 0.52);
-      --glass-hover: rgba(255, 255, 255, 0.08);
-      --glass-active: rgba(255, 255, 255, 0.14);
-      --glass-border: rgba(255, 255, 255, 0.13);
-      --glass-specular: inset 0 1px 0 0 rgba(255, 255, 255, 0.22);
-      --text-main: #f5f5f7;
-      --text-muted: rgba(235, 235, 245, 0.58);
-      --apple-blue: #0a84ff;
-      --apple-blue-glow: rgba(10, 132, 255, 0.35);
-      --apple-green: #30d158;
-      --apple-green-soft: rgba(48, 209, 88, 0.18);
-      --apple-red: #ff453a;
-      --spring: cubic-bezier(0.22, 1, 0.36, 1);
-      --bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+      --bg-servers: #0f1014;
+      --bg-channels: #16181e;
+      --bg-chat: #1c1e26;
+      --bg-input: #252832;
+      --bg-hover: #2a2d38;
+      --bg-active: #323644;
+      --border: #2a2d37;
+      --text-main: #f2f4f8;
+      --text-muted: #9398a6;
+      --accent: #5865f2;
+      --accent-hover: #4752c4;
+      --green: #23a55a;
+      --green-soft: rgba(35, 165, 90, 0.16);
+      --red: #f23f43;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif;
-      -webkit-font-smoothing: antialiased;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     }
 
     body {
-      background: #07080c;
+      background: var(--bg-chat);
       color: var(--text-main);
-      height: 100vh;
+      height: 100dvh;
       width: 100vw;
       overflow: hidden;
       display: flex;
-      padding: 12px;
-      gap: 12px;
       user-select: none;
-      position: relative;
     }
 
-    /* Живой фоновый градиент (Liquid Orbs) для эффекта преломления стекла */
-    .ambient-bg {
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      overflow: hidden;
-      pointer-events: none;
-      background: radial-gradient(circle at 50% 50%, #0d101b 0%, #050609 100%);
-    }
-
-    .orb {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(90px);
-      opacity: 0.55;
-      animation: floatOrb 18s ease-in-out infinite alternate;
-    }
-
-    .orb-1 {
-      width: 460px;
-      height: 460px;
-      background: radial-gradient(circle, #0a84ff, #5e5ce6);
-      top: -10%;
-      left: -5%;
-    }
-
-    .orb-2 {
-      width: 420px;
-      height: 420px;
-      background: radial-gradient(circle, #bf5af2, #ff375f);
-      bottom: -12%;
-      right: -4%;
-      animation-delay: -6s;
-    }
-
-    .orb-3 {
-      width: 340px;
-      height: 340px;
-      background: radial-gradient(circle, #30d158, #0a84ff);
-      top: 40%;
-      left: 42%;
-      opacity: 0.25;
-      animation-delay: -12s;
-    }
-
-    @keyframes floatOrb {
-      0% { transform: translate(0, 0) scale(1); }
-      50% { transform: translate(40px, -30px) scale(1.08); }
-      100% { transform: translate(-30px, 35px) scale(0.95); }
-    }
-
-    /* Базовый класс Liquid Glass */
-    .liquid-panel {
-      position: relative;
-      z-index: 1;
-      background: var(--glass-bg);
-      backdrop-filter: blur(36px) saturate(185%);
-      -webkit-backdrop-filter: blur(36px) saturate(185%);
-      border: 1px solid var(--glass-border);
-      box-shadow: var(--glass-specular), 0 20px 50px rgba(0, 0, 0, 0.45);
-      border-radius: 26px;
-      transition: transform 0.35s var(--spring), background 0.25s ease;
-    }
-
-    /* Плавные анимации элементов */
-    @keyframes msgAppear {
-      from { opacity: 0; transform: translateY(12px) scale(0.97); filter: blur(4px); }
-      to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
-    }
-
-    @keyframes modalGlass {
-      from { opacity: 0; transform: scale(0.9) translateY(14px); filter: blur(8px); }
-      to { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
-    }
-
-    @keyframes pulseRing {
-      0% { box-shadow: 0 0 0 0 rgba(48, 209, 88, 0.6); }
-      70% { box-shadow: 0 0 0 8px rgba(48, 209, 88, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(48, 209, 88, 0); }
-    }
-
-    /* Экран регистрации профиля */
+    /* Экран создания профиля */
     .auth-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(7, 8, 12, 0.65);
-      backdrop-filter: blur(28px) saturate(160%);
-      -webkit-backdrop-filter: blur(28px) saturate(160%);
+      background: var(--bg-servers);
       display: flex;
       align-items: center;
       justify-content: center;
+      padding: 16px;
       z-index: 100;
-      transition: opacity 0.45s var(--spring), visibility 0.45s ease;
     }
 
-    .auth-overlay.hidden {
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
-    }
+    .auth-overlay.hidden { display: none; }
 
     .auth-card {
       width: 100%;
-      max-width: 390px;
-      background: rgba(30, 32, 42, 0.62);
-      backdrop-filter: blur(44px) saturate(200%);
-      -webkit-backdrop-filter: blur(44px) saturate(200%);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 32px 80px rgba(0, 0, 0, 0.65);
-      border-radius: 32px;
-      padding: 32px;
-      animation: modalGlass 0.45s var(--spring);
+      max-width: 360px;
+      background: var(--bg-channels);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
     }
 
     .auth-logo {
-      width: 54px;
-      height: 54px;
-      border-radius: 18px;
-      background: linear-gradient(135deg, #0a84ff, #5e5ce6);
-      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.45), 0 10px 24px var(--apple-blue-glow);
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: var(--accent);
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 700;
-      font-size: 20px;
-      margin-bottom: 18px;
+      font-size: 18px;
+      margin-bottom: 14px;
     }
 
-    .glass-input {
+    .input-field {
       width: 100%;
-      background: rgba(255, 255, 255, 0.07);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
-      border-radius: 14px;
-      padding: 12px 15px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 11px 12px;
       color: var(--text-main);
       font-size: 14px;
       margin-top: 6px;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
       outline: none;
-      transition: all 0.25s var(--spring);
     }
 
-    .glass-input:focus {
-      background: rgba(255, 255, 255, 0.11);
-      border-color: var(--apple-blue);
-      box-shadow: 0 0 0 4px rgba(10, 132, 255, 0.2);
-    }
+    .input-field:focus { border-color: var(--accent); }
 
     .color-row {
       display: flex;
-      gap: 12px;
-      margin: 8px 0 22px;
+      gap: 10px;
+      margin: 8px 0 18px;
     }
 
     .color-dot {
-      width: 30px;
-      height: 30px;
+      width: 28px;
+      height: 28px;
       border-radius: 50%;
       cursor: pointer;
-      border: 2px solid rgba(255, 255, 255, 0.15);
-      transition: transform 0.25s var(--bounce), border-color 0.2s;
+      border: 2px solid transparent;
     }
-
-    .color-dot:hover { transform: scale(1.12); }
 
     .color-dot.selected {
       border-color: #fff;
-      transform: scale(1.2);
-      box-shadow: 0 4px 14px rgba(255, 255, 255, 0.25);
+      transform: scale(1.1);
     }
 
-    .btn-apple {
+    .btn-primary {
       width: 100%;
-      background: linear-gradient(180deg, #1a8cff 0%, #0071e3 100%);
+      background: var(--accent);
       color: #fff;
       border: none;
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 8px 20px var(--apple-blue-glow);
-      border-radius: 14px;
-      padding: 13px;
+      border-radius: 10px;
+      padding: 11px;
       font-size: 14px;
       font-weight: 600;
       cursor: pointer;
-      transition: transform 0.2s var(--spring), filter 0.2s ease;
     }
 
-    .btn-apple:hover { filter: brightness(1.08); }
-    .btn-apple:active { transform: scale(0.96); }
+    .btn-primary:hover { background: var(--accent-hover); }
 
-    .btn-glass-secondary {
+    .btn-secondary {
       width: 100%;
-      background: rgba(255, 255, 255, 0.08);
+      background: var(--bg-input);
       color: var(--text-main);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 14px;
-      padding: 11px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
       font-size: 13px;
       font-weight: 600;
       cursor: pointer;
       margin-top: 8px;
-      transition: all 0.2s var(--spring);
     }
 
-    .btn-glass-secondary:hover { background: rgba(255, 255, 255, 0.14); }
-    .btn-glass-secondary:active { transform: scale(0.97); }
+    /* Обёртка навигации (для адаптива на мобильных) */
+    .nav-drawer {
+      display: flex;
+      height: 100%;
+      flex-shrink: 0;
+      z-index: 40;
+    }
 
-    /* 1. Колонка серверов (Apple Dock style) */
+    .drawer-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 35;
+    }
+
+    /* 1. Колонка серверов */
     .servers-bar {
-      width: 74px;
-      background: var(--glass-sidebar);
+      width: 68px;
+      background: var(--bg-servers);
+      border-right: 1px solid var(--border);
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 14px 0;
-      gap: 12px;
+      padding: 12px 0;
+      gap: 10px;
       overflow-y: auto;
     }
 
@@ -277,87 +179,72 @@
 
     .server-pill {
       position: absolute;
-      left: 4px;
+      left: 0;
       width: 4px;
       height: 0;
       background: #fff;
-      border-radius: 99px;
-      box-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
-      transition: height 0.3s var(--bounce);
+      border-radius: 0 4px 4px 0;
+      transition: height 0.15s ease;
     }
 
-    .server-wrap:hover .server-pill { height: 18px; }
     .server-wrap.active .server-pill { height: 32px; }
 
     .server-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 18px;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: var(--bg-input);
       color: var(--text-muted);
-      font-size: 15px;
-      font-weight: 600;
+      border: none;
+      font-size: 14px;
+      font-weight: 700;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.3s var(--bounce);
+      transition: background 0.15s, color 0.15s;
     }
 
-    .server-icon:hover {
-      transform: scale(1.08) translateY(-1px);
-      background: rgba(255, 255, 255, 0.16);
+    .server-icon:hover, .server-wrap.active .server-icon {
+      background: var(--accent);
       color: #fff;
     }
-
-    .server-wrap.active .server-icon {
-      background: linear-gradient(135deg, #0a84ff, #5e5ce6);
-      border-color: rgba(255, 255, 255, 0.3);
-      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.45), 0 8px 20px var(--apple-blue-glow);
-      color: #fff;
-    }
-
-    .server-icon:active { transform: scale(0.92); }
 
     .server-add {
-      color: var(--apple-green);
-      font-size: 22px;
-      font-weight: 400;
+      color: var(--green);
+      font-size: 20px;
     }
 
     .server-add:hover {
-      background: var(--apple-green);
-      color: #07080c;
-      box-shadow: 0 8px 20px rgba(48, 209, 88, 0.35);
+      background: var(--green);
+      color: #fff;
     }
 
     .divider {
-      width: 30px;
+      width: 28px;
       height: 1px;
-      background: rgba(255, 255, 255, 0.12);
+      background: var(--border);
       flex-shrink: 0;
     }
 
     /* 2. Колонка каналов */
     .channels-bar {
-      width: 256px;
-      background: var(--glass-sidebar);
+      width: 240px;
+      background: var(--bg-channels);
+      border-right: 1px solid var(--border);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      overflow: hidden;
     }
 
     .server-header {
-      height: 54px;
-      padding: 0 16px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      height: 52px;
+      padding: 0 14px;
+      border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      font-weight: 600;
+      font-weight: 700;
       font-size: 15px;
       gap: 8px;
     }
@@ -365,37 +252,30 @@
     .code-pill {
       font-family: 'JetBrains Mono', monospace;
       font-size: 11px;
-      background: rgba(255, 255, 255, 0.08);
-      color: var(--apple-blue);
-      padding: 5px 9px;
-      border-radius: 10px;
+      background: var(--bg-input);
+      color: var(--text-main);
+      padding: 4px 8px;
+      border-radius: 6px;
       cursor: pointer;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      transition: all 0.2s var(--spring);
+      border: 1px solid var(--border);
       white-space: nowrap;
     }
 
-    .code-pill:hover {
-      background: rgba(10, 132, 255, 0.18);
-      border-color: var(--apple-blue);
-      transform: scale(1.03);
-    }
-
-    .code-pill:active { transform: scale(0.95); }
+    .code-pill:hover { border-color: var(--accent); }
 
     .channels-list {
-      padding: 12px 10px;
+      padding: 10px 8px;
       flex: 1;
       overflow-y: auto;
     }
 
     .category-title {
       font-size: 11px;
-      font-weight: 600;
+      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.04em;
       color: var(--text-muted);
-      padding: 8px 10px 6px;
+      padding: 8px 8px 6px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -404,76 +284,67 @@
     .channel-btn {
       width: 100%;
       background: transparent;
-      border: 1px solid transparent;
+      border: none;
       color: var(--text-muted);
-      padding: 9px 12px;
-      border-radius: 13px;
+      padding: 9px 10px;
+      border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       font-size: 14px;
       font-weight: 500;
       cursor: pointer;
-      transition: all 0.22s var(--spring);
-      margin-bottom: 3px;
+      margin-bottom: 2px;
       text-align: left;
     }
 
     .channel-btn:hover {
-      background: var(--glass-hover);
+      background: var(--bg-hover);
       color: var(--text-main);
-      transform: translateX(3px);
     }
 
     .channel-btn.active {
-      background: var(--glass-active);
-      border-color: rgba(255, 255, 255, 0.12);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      background: var(--bg-active);
       color: #fff;
     }
 
     .channel-btn.voice-active {
-      background: var(--apple-green-soft);
-      border-color: rgba(48, 209, 88, 0.25);
-      color: var(--apple-green);
+      background: var(--green-soft);
+      color: var(--green);
     }
 
     .voice-user {
-      padding: 5px 12px 7px 28px;
+      padding: 4px 10px 6px 26px;
       display: flex;
       align-items: center;
       gap: 8px;
       font-size: 13px;
       color: var(--text-main);
-      animation: msgAppear 0.25s var(--spring);
     }
 
     .mini-avatar {
-      width: 22px;
-      height: 22px;
+      width: 20px;
+      height: 20px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 10px;
       font-weight: 700;
-      animation: pulseRing 2s infinite;
     }
 
-    /* Нижняя капсула профиля + Саундпад */
+    /* Нижняя панель + Саундпад */
     .user-panel {
-      background: rgba(14, 15, 20, 0.45);
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(20px);
+      background: #111318;
+      border-top: 1px solid var(--border);
     }
 
     .soundpad-bar {
-      padding: 10px 12px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--border);
       display: none;
       flex-direction: column;
-      gap: 8px;
-      animation: msgAppear 0.25s var(--spring);
+      gap: 6px;
     }
 
     .soundpad-bar.open { display: flex; }
@@ -481,42 +352,31 @@
     .soundpad-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 6px;
+      gap: 4px;
     }
 
     .pad-btn {
-      background: rgba(255, 255, 255, 0.07);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+      background: var(--bg-input);
+      border: 1px solid var(--border);
       color: var(--text-main);
-      border-radius: 11px;
-      padding: 7px 4px;
+      border-radius: 6px;
+      padding: 6px 4px;
       font-size: 11px;
-      font-weight: 500;
       cursor: pointer;
-      transition: all 0.18s var(--bounce);
       text-align: center;
     }
 
-    .pad-btn:hover {
-      background: rgba(10, 132, 255, 0.2);
-      border-color: rgba(10, 132, 255, 0.45);
-      transform: translateY(-1px);
-    }
-
     .pad-btn:active {
-      transform: scale(0.9);
-      background: var(--apple-blue);
+      background: var(--accent);
       color: #fff;
     }
 
     .voice-status {
-      padding: 10px 14px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
       display: none;
       align-items: center;
       justify-content: space-between;
-      animation: msgAppear 0.25s var(--spring);
     }
 
     .voice-status.connected { display: flex; }
@@ -524,7 +384,7 @@
     .voice-badge {
       font-size: 12px;
       font-weight: 600;
-      color: var(--apple-green);
+      color: var(--green);
     }
 
     .voice-sub {
@@ -534,18 +394,17 @@
     }
 
     .profile-row {
-      padding: 10px 12px;
+      padding: 8px 10px;
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
 
     .avatar {
-      width: 36px;
-      height: 36px;
+      width: 34px;
+      height: 34px;
       border-radius: 50%;
-      background: var(--apple-blue);
-      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.35);
+      background: var(--accent);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -559,11 +418,11 @@
       position: absolute;
       bottom: -1px;
       right: -1px;
-      width: 11px;
-      height: 11px;
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
-      background: var(--apple-green);
-      border: 2px solid #14161d;
+      background: var(--green);
+      border: 2px solid #111318;
     }
 
     .icon-btn {
@@ -572,75 +431,78 @@
       color: var(--text-muted);
       width: 30px;
       height: 30px;
-      border-radius: 10px;
+      border-radius: 8px;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.2s var(--spring);
       font-size: 15px;
     }
 
     .icon-btn:hover {
-      background: var(--glass-hover);
+      background: var(--bg-hover);
       color: #fff;
-      transform: scale(1.06);
     }
-
-    .icon-btn:active { transform: scale(0.92); }
 
     .icon-btn.active {
-      background: rgba(10, 132, 255, 0.2);
-      color: var(--apple-blue);
+      background: var(--bg-active);
+      color: #fff;
     }
 
-    .icon-btn.danger { color: var(--apple-red); }
+    .icon-btn.danger { color: var(--red); }
 
     /* 3. Окно чата */
     .chat-area {
       flex: 1;
       display: flex;
       flex-direction: column;
+      background: var(--bg-chat);
       min-width: 0;
-      overflow: hidden;
     }
 
     .chat-header {
-      height: 54px;
-      padding: 0 20px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      height: 52px;
+      padding: 0 14px;
+      border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: space-between;
       font-weight: 600;
       font-size: 15px;
+      gap: 8px;
+    }
+
+    .mobile-menu-btn {
+      display: none;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      font-size: 18px;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
     }
 
     .call-btn {
-      background: rgba(48, 209, 88, 0.16);
-      color: var(--apple-green);
-      border: 1px solid rgba(48, 209, 88, 0.35);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
-      padding: 7px 14px;
-      border-radius: 12px;
+      background: var(--green);
+      color: #fff;
+      border: none;
+      padding: 7px 12px;
+      border-radius: 8px;
       font-size: 12px;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.2s var(--spring);
+      white-space: nowrap;
     }
-
-    .call-btn:hover {
-      background: var(--apple-green);
-      color: #07080c;
-      transform: scale(1.03);
-    }
-
-    .call-btn:active { transform: scale(0.95); }
 
     .messages-box {
       flex: 1;
       overflow-y: auto;
-      padding: 20px;
+      padding: 16px;
       display: flex;
       flex-direction: column;
       gap: 12px;
@@ -649,42 +511,34 @@
 
     .msg {
       display: flex;
-      gap: 12px;
-      padding: 8px 12px;
-      margin: 0 -12px;
-      border-radius: 16px;
-      animation: msgAppear 0.28s var(--spring);
-      transition: background 0.2s ease;
+      gap: 10px;
+      padding: 4px 6px;
+      border-radius: 8px;
     }
 
-    .msg:hover { background: rgba(255, 255, 255, 0.04); }
+    .msg:hover { background: rgba(255, 255, 255, 0.02); }
 
     .msg-author { font-weight: 600; font-size: 14px; }
     .msg-time { font-size: 11px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; margin-left: 6px; }
-    .msg-text { font-size: 14px; line-height: 1.48; color: rgba(245, 245, 247, 0.9); margin-top: 3px; word-break: break-word; }
+    .msg-text { font-size: 14px; line-height: 1.45; color: #e2e5ec; margin-top: 2px; word-break: break-word; }
 
-    .input-wrap { padding: 0 20px 20px; }
+    .input-wrap { padding: 0 14px 14px; }
 
     .input-form {
-      background: rgba(255, 255, 255, 0.07);
-      border: 1px solid rgba(255, 255, 255, 0.13);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 8px 24px rgba(0, 0, 0, 0.2);
-      border-radius: 18px;
-      padding: 8px 10px 8px 16px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 6px 8px 6px 14px;
       display: flex;
       align-items: center;
-      gap: 10px;
-      transition: all 0.25s var(--spring);
+      gap: 8px;
     }
 
-    .input-form:focus-within {
-      background: rgba(255, 255, 255, 0.1);
-      border-color: rgba(10, 132, 255, 0.6);
-      box-shadow: 0 0 0 4px rgba(10, 132, 255, 0.18), 0 10px 28px rgba(0, 0, 0, 0.25);
-    }
+    .input-form:focus-within { border-color: var(--accent); }
 
     .input-form input {
       flex: 1;
+      min-width: 0;
       background: transparent;
       border: none;
       color: var(--text-main);
@@ -693,180 +547,179 @@
     }
 
     .send-btn {
-      background: linear-gradient(180deg, #1a8cff 0%, #0071e3 100%);
+      background: var(--accent);
       color: #fff;
       border: none;
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
-      border-radius: 12px;
-      padding: 8px 15px;
+      border-radius: 8px;
+      padding: 8px 14px;
       font-size: 13px;
       font-weight: 600;
       cursor: pointer;
-      transition: transform 0.18s var(--spring), filter 0.2s;
+      flex-shrink: 0;
     }
 
-    .send-btn:hover { filter: brightness(1.08); }
-    .send-btn:active { transform: scale(0.94); }
-
-    /* Модалка Liquid Glass */
+    /* Модалка */
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.55);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
+      background: rgba(0, 0, 0, 0.65);
       display: none;
       align-items: center;
       justify-content: center;
+      padding: 16px;
       z-index: 90;
     }
 
     .modal-backdrop.open { display: flex; }
 
     .modal-box {
-      width: 380px;
-      background: rgba(30, 32, 42, 0.68);
-      backdrop-filter: blur(44px) saturate(200%);
-      -webkit-backdrop-filter: blur(44px) saturate(200%);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 28px 70px rgba(0, 0, 0, 0.6);
-      border-radius: 28px;
-      padding: 26px;
-      animation: modalGlass 0.32s var(--spring);
+      width: 100%;
+      max-width: 360px;
+      background: var(--bg-channels);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
     }
 
-    /* Уведомление в стиле Apple Dynamic Island / Pill */
+    /* Уведомление */
     .toast {
       position: fixed;
-      top: 20px;
+      bottom: 76px;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(28, 30, 40, 0.78);
-      backdrop-filter: blur(32px) saturate(190%);
-      -webkit-backdrop-filter: blur(32px) saturate(190%);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 14px 36px rgba(0, 0, 0, 0.45);
+      background: #111318;
+      border: 1px solid var(--border);
       color: var(--text-main);
-      padding: 10px 18px;
-      border-radius: 99px;
+      padding: 9px 16px;
+      border-radius: 10px;
       font-size: 13px;
-      font-weight: 500;
       z-index: 200;
-      animation: toastDrop 0.35s var(--spring);
+      white-space: nowrap;
+      max-width: 90vw;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    @keyframes toastDrop {
-      from { opacity: 0; transform: translate(-50%, -18px) scale(0.92); }
-      to { opacity: 1; transform: translate(-50%, 0) scale(1); }
-    }
+    /* МОБИЛЬНАЯ ВЕРСИЯ (экраны до 768px) */
+    @media (max-width: 768px) {
+      .mobile-menu-btn { display: inline-flex; }
 
-    /* Кастомный тонкий скроллбар */
-    ::-webkit-scrollbar { width: 5px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.14); border-radius: 99px; }
+      .nav-drawer {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        transform: translateX(-100%);
+        transition: transform 0.22s ease;
+        max-width: 86vw;
+      }
+
+      .nav-drawer.open { transform: translateX(0); }
+      .drawer-backdrop.open { display: block; }
+
+      .channels-bar { width: 230px; }
+    }
   </style>
 </head>
 <body>
 
-  <!-- Живой фон с размытыми световыми сферами -->
-  <div class="ambient-bg">
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
-    <div class="orb orb-3"></div>
-  </div>
-
-  <!-- 0. РЕГИСТРАЦИЯ ПРОФИЛЯ -->
+  <!-- 0. СОЗДАНИЕ ПРОФИЛЯ -->
   <div class="auth-overlay" id="authOverlay">
     <div class="auth-card">
       <div class="auth-logo">TC</div>
-      <h2 style="font-size: 22px; font-weight: 700; margin-bottom: 6px;">Tomocord</h2>
-      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.45;">
-        Прямое P2P-соединение без серверов. Выбери имя и цвет профиля для начала.
+      <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 4px;">Tomocord</h2>
+      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
+        Прямой P2P-чат и звонки без серверов. Выбери никнейм и цвет аватарки.
       </p>
 
-      <label style="font-size: 12px; font-weight: 500; color: var(--text-muted);">Никнейм</label>
-      <input type="text" id="regNick" class="glass-input" placeholder="Введи никнейм..." maxlength="20">
+      <label style="font-size: 12px; color: var(--text-muted);">Никнейм</label>
+      <input type="text" id="regNick" class="input-field" placeholder="Введи никнейм..." maxlength="20">
 
-      <label style="font-size: 12px; font-weight: 500; color: var(--text-muted);">Оттенок профиля</label>
+      <label style="font-size: 12px; color: var(--text-muted);">Цвет аватарки</label>
       <div class="color-row" id="colorPicker">
-        <div class="color-dot selected" style="background: #0a84ff;" data-color="#0a84ff"></div>
-        <div class="color-dot" style="background: #30d158;" data-color="#30d158"></div>
-        <div class="color-dot" style="background: #bf5af2;" data-color="#bf5af2"></div>
-        <div class="color-dot" style="background: #ff9f0a;" data-color="#ff9f0a"></div>
-        <div class="color-dot" style="background: #ff375f;" data-color="#ff375f"></div>
+        <div class="color-dot selected" style="background: #5865f2;" data-color="#5865f2"></div>
+        <div class="color-dot" style="background: #23a55a;" data-color="#23a55a"></div>
+        <div class="color-dot" style="background: #e67e22;" data-color="#e67e22"></div>
+        <div class="color-dot" style="background: #e91e63;" data-color="#e91e63"></div>
+        <div class="color-dot" style="background: #00bcd4;" data-color="#00bcd4"></div>
       </div>
 
-      <button class="btn-apple" onclick="completeRegister()">Продолжить</button>
+      <button class="btn-primary" onclick="completeRegister()">Войти</button>
     </div>
   </div>
 
-  <!-- МОДАЛКА СЕРВЕРОВ / ЛС -->
+  <!-- МОДАЛКА -->
   <div class="modal-backdrop" id="modalBackdrop" onclick="if(event.target===this) closeModal()">
     <div class="modal-box" id="modalBox"></div>
   </div>
 
-  <!-- 1. КОЛОНКА СЕРВЕРОВ И ЛС -->
-  <aside class="servers-bar liquid-panel" id="serversBar"></aside>
+  <!-- ЗАТЕМНЕНИЕ ДЛЯ МОБИЛЬНОГО МЕНЮ -->
+  <div class="drawer-backdrop" id="drawerBackdrop" onclick="closeMobileMenu()"></div>
 
-  <!-- 2. КОЛОНКА КАНАЛОВ -->
-  <aside class="channels-bar liquid-panel">
-    <div>
-      <div class="server-header">
-        <span id="serverHeader" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Сообщения</span>
-        <button class="code-pill" id="copyCodeBtn" onclick="copyCurrentCode()" title="Скопировать код">ID...</button>
-      </div>
-      <div class="channels-list" id="channelsList"></div>
-    </div>
+  <!-- ЛЕВАЯ НАВИГАЦИЯ (СЕРВЕРЫ + КАНАЛЫ) -->
+  <div class="nav-drawer" id="navDrawer">
+    <aside class="servers-bar" id="serversBar"></aside>
 
-    <div class="user-panel">
-      <!-- САУНДПАД -->
-      <div class="soundpad-bar" id="soundpadBar">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <span style="font-size: 11px; font-weight: 600; color: var(--text-muted);">🎛️ САУНДПАД</span>
-          <span style="font-size: 10px; color: var(--apple-blue);">В эфир</span>
+    <aside class="channels-bar">
+      <div>
+        <div class="server-header">
+          <span id="serverHeader" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Сообщения</span>
+          <button class="code-pill" id="copyCodeBtn" onclick="copyCurrentCode()" title="Скопировать код">ID...</button>
         </div>
-        <div class="soundpad-grid">
-          <button class="pad-btn" onclick="triggerSoundpad('airhorn')">📯 Горн</button>
-          <button class="pad-btn" onclick="triggerSoundpad('bruh')">🗿 Bruh</button>
-          <button class="pad-btn" onclick="triggerSoundpad('boom')">💥 Boom</button>
-          <button class="pad-btn" onclick="triggerSoundpad('coin')">🪙 Монета</button>
-          <button class="pad-btn" onclick="triggerSoundpad('alert')">🚨 Сигнал</button>
-          <button class="pad-btn" onclick="triggerSoundpad('win')">🎉 Победа</button>
-        </div>
+        <div class="channels-list" id="channelsList"></div>
       </div>
 
-      <!-- СТАТУС ГОЛОСОВОГО КАНАЛА / ЗВОНКА -->
-      <div class="voice-status" id="voiceStatus">
-        <div>
-          <div class="voice-badge">● Голос активен</div>
-          <div class="voice-sub" id="voiceSubText">WebRTC P2P</div>
-        </div>
-        <button class="icon-btn danger" onclick="leaveVoice()" title="Завершить">✕</button>
-      </div>
-
-      <!-- ПРОФИЛЬ -->
-      <div class="profile-row">
-        <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
-          <div class="avatar" id="myAvatar">U<span class="status-dot"></span></div>
-          <div style="min-width: 0;">
-            <div id="myName" style="font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">user</div>
-            <div id="p2pStatus" style="font-size: 11px; color: var(--apple-green);">В сети</div>
+      <div class="user-panel">
+        <!-- САУНДПАД -->
+        <div class="soundpad-bar" id="soundpadBar">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 11px; font-weight: 700; color: var(--text-muted);">САУНДПАД</span>
+            <span style="font-size: 10px; color: var(--accent);">В эфир</span>
+          </div>
+          <div class="soundpad-grid">
+            <button class="pad-btn" onclick="triggerSoundpad('airhorn')">📯 Горн</button>
+            <button class="pad-btn" onclick="triggerSoundpad('bruh')">🗿 Bruh</button>
+            <button class="pad-btn" onclick="triggerSoundpad('boom')">💥 Boom</button>
+            <button class="pad-btn" onclick="triggerSoundpad('coin')">🪙 Монета</button>
+            <button class="pad-btn" onclick="triggerSoundpad('alert')">🚨 Сигнал</button>
+            <button class="pad-btn" onclick="triggerSoundpad('win')">🎉 Победа</button>
           </div>
         </div>
-        <div style="display: flex; gap: 2px;">
-          <button class="icon-btn" id="padToggleBtn" onclick="toggleSoundpad()" title="Саундпад">🎛️</button>
-          <button class="icon-btn" id="muteBtn" onclick="toggleMute()" title="Микрофон">🎙️</button>
+
+        <!-- СТАТУС ЗВОНКА -->
+        <div class="voice-status" id="voiceStatus">
+          <div>
+            <div class="voice-badge">● Голос подключён</div>
+            <div class="voice-sub" id="voiceSubText">WebRTC P2P</div>
+          </div>
+          <button class="icon-btn danger" onclick="leaveVoice()" title="Завершить">✕</button>
+        </div>
+
+        <!-- ПРОФИЛЬ -->
+        <div class="profile-row">
+          <div style="display: flex; align-items: center; gap: 9px; min-width: 0;">
+            <div class="avatar" id="myAvatar">U<span class="status-dot"></span></div>
+            <div style="min-width: 0;">
+              <div id="myName" style="font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">user</div>
+              <div id="p2pStatus" style="font-size: 11px; color: var(--green);">В сети</div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 2px;">
+            <button class="icon-btn" id="padToggleBtn" onclick="toggleSoundpad()" title="Саундпад">🎛️</button>
+            <button class="icon-btn" id="muteBtn" onclick="toggleMute()" title="Микрофон">🎙️</button>
+          </div>
         </div>
       </div>
-    </div>
-  </aside>
+    </aside>
+  </div>
 
   <!-- 3. ОКНО ЧАТА -->
-  <main class="chat-area liquid-panel">
+  <main class="chat-area">
     <header class="chat-header">
-      <div style="display: flex; align-items: center; gap: 8px;">
-        <span id="chatPrefix" style="color: var(--text-muted); font-family: 'JetBrains Mono'; font-size: 17px;">@</span>
-        <span id="chatTitle">Сообщения</span>
+      <div style="display: flex; align-items: center; gap: 8px; min-width: 0;">
+        <button class="mobile-menu-btn" onclick="openMobileMenu()" title="Меню">☰</button>
+        <span id="chatPrefix" style="color: var(--text-muted); font-family: 'JetBrains Mono'; font-size: 16px;">@</span>
+        <span id="chatTitle" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Сообщения</span>
       </div>
       <div id="headerActions"></div>
     </header>
@@ -875,7 +728,7 @@
 
     <div class="input-wrap">
       <form class="input-form" onsubmit="sendMessage(event)">
-        <input type="text" id="msgInput" placeholder="Сообщение..." autocomplete="off">
+        <input type="text" id="msgInput" placeholder="Написать сообщение..." autocomplete="off">
         <button type="submit" class="send-btn">Отправить</button>
       </form>
     </div>
@@ -884,10 +737,7 @@
   <div id="remoteAudios"></div>
 
   <script>
-    // ==========================================
-    // 1. ХРАНИЛИЩЕ И СОСТОЯНИЕ
-    // ==========================================
-    let selectedColor = '#0a84ff';
+    let selectedColor = '#5865f2';
     document.querySelectorAll('.color-dot').forEach(dot => {
       dot.onclick = () => {
         document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('selected'));
@@ -921,18 +771,23 @@
       localStorage.setItem('tc_msgs', JSON.stringify(state.messages));
     }
 
+    function openMobileMenu() {
+      document.getElementById('navDrawer').classList.add('open');
+      document.getElementById('drawerBackdrop').classList.add('open');
+    }
+
+    function closeMobileMenu() {
+      document.getElementById('navDrawer').classList.remove('open');
+      document.getElementById('drawerBackdrop').classList.remove('open');
+    }
+
     function showToast(text) {
       document.querySelectorAll('.toast').forEach(t => t.remove());
       const el = document.createElement('div');
       el.className = 'toast';
       el.textContent = text;
       document.body.appendChild(el);
-      setTimeout(() => {
-        el.style.opacity = '0';
-        el.style.transform = 'translate(-50%, -12px)';
-        el.style.transition = 'all 0.25s ease';
-        setTimeout(() => el.remove(), 250);
-      }, 2500);
+      setTimeout(() => el.remove(), 2600);
     }
 
     const savedUser = localStorage.getItem('tc_user');
@@ -956,9 +811,6 @@
       initApp();
     }
 
-    // ==========================================
-    // 2. ИНИЦИАЛИЗАЦИЯ PEERJS (P2P)
-    // ==========================================
     function initApp() {
       document.getElementById('myName').textContent = state.user.name;
       const av = document.getElementById('myAvatar');
@@ -993,7 +845,7 @@
       });
 
       state.peer.on('error', err => {
-        if (err.type === 'peer-unavailable') showToast('Пользователь сейчас не в сети');
+        if (err.type === 'peer-unavailable') showToast('Пользователь не в сети');
       });
 
       render();
@@ -1045,7 +897,7 @@
         });
         saveLocal();
         if (state.mode === 'dm' && state.activeChannelId === chatKey) render();
-        else showToast(`💬 ${data.from.name}: ${data.text.slice(0, 28)}`);
+        else showToast(`💬 ${data.from.name}: ${data.text.slice(0, 26)}`);
       }
 
       if (data.type === 'srv_msg') {
@@ -1073,7 +925,7 @@
         state.activeServerId = data.server.id;
         state.activeChannelId = data.server.channels[0].id;
         render();
-        showToast(`✨ Вход на сервер «${data.server.name}»`);
+        showToast(`Вход на сервер «${data.server.name}»`);
       }
 
       if (data.type === 'voice_join') {
@@ -1105,9 +957,6 @@
       });
     }
 
-    // ==========================================
-    // 3. ЗВОНКИ (WEBRTC) + САУНДПАД
-    // ==========================================
     async function getMixedMicStream() {
       if (state.localStream) return state.localStream;
       state.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -1118,7 +967,7 @@
         const micSource = state.audioCtx.createMediaStreamSource(mic);
         micSource.connect(state.mixedDest);
       } catch (e) {
-        showToast('⚠️ Микрофон недоступен — активен приём и саундпад');
+        showToast('⚠️ Микрофон недоступен');
       }
 
       state.localStream = state.mixedDest.stream;
@@ -1273,16 +1122,13 @@
       }
     }
 
-    // ==========================================
-    // 4. МОДАЛКИ И ОТПРАВКА СООБЩЕНИЙ
-    // ==========================================
     function openAddDmModal() {
       document.getElementById('modalBox').innerHTML = `
-        <h3 style="font-size: 19px; font-weight: 700; margin-bottom: 6px;">Новый диалог</h3>
-        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">Вставь P2P ID собеседника (например, <code style="color:var(--apple-blue)">tc-user-9a2b</code>):</p>
-        <input id="dmTargetId" class="glass-input" placeholder="tc-...">
-        <input id="dmTargetName" class="glass-input" placeholder="Имя (необязательно)">
-        <button class="btn-apple" onclick="addDmFriend()">Открыть чат</button>
+        <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 6px;">Новый диалог</h3>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">Вставь P2P ID собеседника:</p>
+        <input id="dmTargetId" class="input-field" placeholder="tc-...">
+        <input id="dmTargetName" class="input-field" placeholder="Имя (необязательно)">
+        <button class="btn-primary" onclick="addDmFriend()">Открыть чат</button>
       `;
       document.getElementById('modalBackdrop').classList.add('open');
     }
@@ -1293,28 +1139,29 @@
       if (!peerId) return;
 
       if (!state.dms.find(d => d.peerId === peerId)) {
-        state.dms.push({ peerId, name, color: '#30d158' });
+        state.dms.push({ peerId, name, color: '#23a55a' });
         saveLocal();
       }
       connectToPeer(peerId);
       state.mode = 'dm';
       state.activeChannelId = 'dm_' + peerId;
       closeModal();
+      closeMobileMenu();
       render();
     }
 
     function openServerModal() {
       document.getElementById('modalBox').innerHTML = `
-        <h3 style="font-size: 19px; font-weight: 700; margin-bottom: 14px;">Серверы</h3>
-        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Создать новое пространство:</div>
-        <input id="newSrvName" class="glass-input" placeholder="Название сервера">
-        <button class="btn-apple" onclick="createNewServer()">Создать</button>
+        <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 12px;">Серверы</h3>
+        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Создать сервер:</div>
+        <input id="newSrvName" class="input-field" placeholder="Название сервера">
+        <button class="btn-primary" onclick="createNewServer()">Создать</button>
 
-        <div style="height: 1px; background: rgba(255,255,255,0.1); margin: 20px 0;"></div>
+        <div style="height: 1px; background: var(--border); margin: 16px 0;"></div>
 
-        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Присоединиться по коду:</div>
-        <input id="joinSrvCode" class="glass-input" placeholder="hostId::srvId">
-        <button class="btn-glass-secondary" onclick="joinExistingServer()">Войти по коду</button>
+        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Войти по коду:</div>
+        <input id="joinSrvCode" class="input-field" placeholder="hostId::srvId">
+        <button class="btn-secondary" onclick="joinExistingServer()">Подключиться</button>
       `;
       document.getElementById('modalBackdrop').classList.add('open');
     }
@@ -1339,6 +1186,7 @@
       state.activeServerId = srv.id;
       state.activeChannelId = srv.channels[0].id;
       closeModal();
+      closeMobileMenu();
       render();
     }
 
@@ -1354,6 +1202,7 @@
         conn?.send({ type: 'srv_sync_req', serverId });
       }, 500);
       closeModal();
+      closeMobileMenu();
     }
 
     function closeModal() {
@@ -1363,12 +1212,12 @@
     function copyCurrentCode() {
       if (state.mode === 'dm') {
         navigator.clipboard.writeText(state.user.id);
-        showToast(`📋 ID скопирован: ${state.user.id}`);
+        showToast(`ID скопирован: ${state.user.id}`);
       } else {
         const srv = state.servers.find(s => s.id === state.activeServerId);
         const code = `${srv.hostPeerId}::${srv.id}`;
         navigator.clipboard.writeText(code);
-        showToast('📋 Код сервера скопирован');
+        showToast('Код сервера скопирован');
       }
     }
 
@@ -1406,9 +1255,6 @@
       render();
     }
 
-    // ==========================================
-    // 5. РЕНДЕР ИНТЕРФЕЙСА
-    // ==========================================
     function render() {
       const serversBar = document.getElementById('serversBar');
       serversBar.innerHTML = `
@@ -1436,8 +1282,8 @@
 
         document.getElementById('channelsList').innerHTML = `
           <div class="category-title">
-            <span>Диалоги (P2P)</span>
-            <span style="cursor:pointer; font-size:16px; color:var(--apple-blue);" onclick="openAddDmModal()" title="Новый диалог">+</span>
+            <span>Диалоги</span>
+            <span style="cursor:pointer; font-size:16px; color:var(--accent);" onclick="openAddDmModal()" title="Новый диалог">+</span>
           </div>
           ${state.dms.length === 0 ? `<div style="padding:10px; font-size:12px; color:var(--text-muted); line-height:1.45;">Нажми <b>+</b> сверху и введи P2P ID собеседника.</div>` : ''}
           ${state.dms.map(dm => {
@@ -1445,8 +1291,8 @@
             const online = state.conns[dm.peerId]?.open;
             return `
               <button class="channel-btn ${state.activeChannelId === chId ? 'active' : ''}" onclick="openDmChat('${dm.peerId}')">
-                <span style="display:flex; align-items:center; gap:9px;">
-                  <span style="width:8px; height:8px; border-radius:50%; background:${online ? 'var(--apple-green)' : 'rgba(255,255,255,0.22)'}; box-shadow:${online ? '0 0 8px var(--apple-green)' : 'none'};"></span>
+                <span style="display:flex; align-items:center; gap:8px;">
+                  <span style="width:8px; height:8px; border-radius:50%; background:${online ? 'var(--green)' : '#555'};"></span>
                   ${escapeHtml(dm.name)}
                 </span>
               </button>
@@ -1462,7 +1308,7 @@
           const roomId = [state.user.id, peerId].sort().join('_');
           headerActions.innerHTML = `<button class="call-btn" onclick="joinVoice('${roomId}', 'Звонок: ${dm?.name || peerId}', '${peerId}')">📞 Позвонить</button>`;
         } else {
-          document.getElementById('chatPrefix').textContent = '✦';
+          document.getElementById('chatPrefix').textContent = '#';
           document.getElementById('chatTitle').textContent = 'Tomocord';
         }
 
@@ -1478,11 +1324,11 @@
           <div class="category-title">Текстовые каналы</div>
           ${textChs.map(c => `
             <button class="channel-btn ${state.activeChannelId === c.id ? 'active' : ''}" onclick="selectChannel('${c.id}')">
-              <span><span style="font-family:'JetBrains Mono'; opacity:0.55;">#</span> ${escapeHtml(c.name)}</span>
+              <span><span style="font-family:'JetBrains Mono'; opacity:0.6;">#</span> ${escapeHtml(c.name)}</span>
             </button>
           `).join('')}
 
-          <div class="category-title" style="margin-top:14px;">Голосовые каналы</div>
+          <div class="category-title" style="margin-top:12px;">Голосовые каналы</div>
           ${voiceChs.map(c => {
             const isConn = state.voiceRoom?.id === c.id;
             const users = state.voiceUsers[c.id] || [];
@@ -1509,10 +1355,9 @@
       const box = document.getElementById('messagesBox');
       if (state.activeChannelId === 'welcome') {
         box.innerHTML = `
-          <div style="margin:auto; text-align:center; max-width:380px; color:var(--text-muted); animation: msgAppear 0.4s var(--spring);">
-            <div style="font-size:40px; margin-bottom:12px;"></div>
-            <h3 style="color:var(--text-main); font-size:18px; margin-bottom:8px;">Твой ID: <code style="color:var(--apple-blue); background:rgba(10,132,255,0.12); padding:3px 8px; border-radius:8px;">${state.user?.id || ''}</code></h3>
-            <p style="font-size:13px; line-height:1.55;">Нажми на свой ID слева вверху, чтобы скопировать и отправить собеседнику. Все звонки и сообщения идут напрямую по P2P.</p>
+          <div style="margin:auto; text-align:center; max-width:340px; color:var(--text-muted); padding: 12px;">
+            <h3 style="color:var(--text-main); font-size:17px; margin-bottom:8px;">Твой ID: <code style="color:var(--accent); background:var(--bg-input); padding:3px 7px; border-radius:6px;">${state.user?.id || ''}</code></h3>
+            <p style="font-size:13px; line-height:1.5;">Нажми на свой ID в меню, чтобы скопировать и отправить собеседнику. Все чаты и звонки работают напрямую по P2P.</p>
           </div>
         `;
       } else {
@@ -1542,6 +1387,7 @@
       state.mode = 'dm';
       state.activeChannelId = 'dm_' + peerId;
       connectToPeer(peerId);
+      closeMobileMenu();
       render();
     }
 
@@ -1555,6 +1401,7 @@
 
     function selectChannel(chId) {
       state.activeChannelId = chId;
+      closeMobileMenu();
       render();
     }
 
